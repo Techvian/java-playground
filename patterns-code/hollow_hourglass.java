@@ -1,14 +1,13 @@
-public class hollow_diamond {
+public class hollow_hourglass {
     public static void main(String[] args) {
-        final int n=5;
-        //upper part
-        for (int i=1; i<=n; i++) {
+        final int n=4;
+        for (int i=n; i>=1; i--) {
             for (int j=i; j<n; j++) {
                 System.out.print(" ");
             }
-            //print star
+            //print stars
             for (int j=1; j<=2*i-1; j++) {
-                if (j==1 || j==2*i-1 || i==1) {
+                if (i==n || j==2*i-1 || j==1) {
                     System.out.print("*");
                 } else {
                     System.out.print(" ");
@@ -17,14 +16,13 @@ public class hollow_diamond {
             System.out.println();
         }
         //lower part
-        // final int m=3;
-        for (int i=4; i>=1; i--) {
+        for (int i=2; i<=n; i++) {
             for (int j=i; j<n; j++) {
                 System.out.print(" ");
             }
-            //print star
+            //print stars
             for (int j=1; j<=2*i-1; j++) {
-                if (j==1 || j==2*i-1 || i==1) {
+                if (i==n || j==2*i-1 || j==1) {
                     System.out.print("*");
                 } else {
                     System.out.print(" ");
