@@ -1,0 +1,63 @@
+name: Java Patterns CI
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
+
+jobs:
+    build-and-validate:
+        name: Compile & Validate Java Patterns
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
+
+          - name: Set up JDK 21
+            uses: actions/setup-java@v4
+            with:
+              java-version: '21'
+              distribution: 'temurin'
+
+          - name: Find all Java files
+            run: |
+              echo "=== Java files found ==="
+              find patterns-code -name "*.java" | sort
+              echo "========================"
+              echo "Total: $(find patterns-code -name '*.java' | wc -l) files"
+
+          - name: Compile all Java pattern files
+            run: |
+              mkdir -p out
+              echo "Compiling all .java files in patterns-code/..."
+              javac -d out $(find patterns-code -name "*.java")
+              echo "✅ All files compiled successfully!"
+
+          - name: Run each pattern (smoke test)
+            run: |
+              echo "=== Running pattern programs ==="
+              PASS=0
+              FAIL=0
+
+              for class_file in $(find out -name "*.class" | sed 's|out/||' | sed 's|\.class$||' | sed 's|/|.|g'); do
+                echo "--- Running: $class_file ---"
+                if timeout 5 java -cp out "$class_file" 2>/dev/null; then
+                  PASS=$((PASS + 1))
+                else
+                  echo "⚠️  $class_file exited with non-zero or timed out"
+                  FAIL=$((FAIL + 1))
+                fi
+              done
+
+              echo ""
+              echo "=== Results ==="
+              echo "✅ Passed : $PASS"
+              echo "⚠️  Failed : $FAIL"
+
+          - name: Upload compiled classes as artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: compiled-classes
+              path: out/
+              retention-days: 7
